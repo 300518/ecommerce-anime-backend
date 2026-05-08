@@ -69,6 +69,10 @@ app.get("/api/products/:pid", async (req, res) => {
   try {
     const { pid } = req.params;
 
+    if (!pid) {
+      return res.status(400).json({ error: "ID inválido" });
+    }
+
     const producto = await Producto.findById(pid);
 
     if (!producto) {
@@ -84,6 +88,12 @@ app.get("/api/products/:pid", async (req, res) => {
 // se agrega post de productos
 app.post("/api/products", async (req, res) => {
   try {
+    const { titulo, precio, stock } = req.body;
+
+    if (!titulo || !precio || stock === undefined) {
+      return res.status(400).json({ error: "Faltan campos obligatorios" });
+    }
+
     const nuevoProducto = await Producto.create(req.body);
 
     // 🔥 emitir actualización
@@ -101,11 +111,19 @@ app.put("/api/products/:pid", async (req, res) => {
   try {
     const { pid } = req.params;
 
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({ error: "No hay datos para actualizar" });
+    }
+
     const productoActualizado = await Producto.findByIdAndUpdate(
       pid,
       req.body,
       { new: true } // devuelve el actualizado
     );
+
+    if (!productoActualizado) {
+      return res.status(404).json({ error: "Producto no encontrado" });
+    }
 
     res.json(productoActualizado);
   } catch (error) {
@@ -142,6 +160,10 @@ app.get("/api/carts/:cid", async (req, res) => {
   try {
     const { cid } = req.params;
 
+    if (!cid) {
+      return res.status(400).json({ error: "ID carrito inválido" });
+    }
+
     const carrito = await Carrito.findById(cid).populate("productos.producto");
 
     if (!carrito) {
@@ -158,6 +180,10 @@ app.get("/api/carts/:cid", async (req, res) => {
 app.post("/api/carts/:cid/products/:pid", async (req, res) => {
   try {
     const { cid, pid } = req.params;
+
+    if (!cid || !pid) {
+      return res.status(400).json({ error: "IDs inválidos" });
+    }
 
     const carrito = await Carrito.findById(cid);
 
@@ -212,7 +238,14 @@ app.put("/api/carts/:cid/products/:pid", async (req, res) => {
     const { cid, pid } = req.params;
     const { cantidad } = req.body;
 
+    if (!cantidad || cantidad < 1) {
+      return res.status(400).json({ error: "Cantidad inválida" });
+    }
     const carrito = await Carrito.findById(cid);
+
+    if (!carrito) {
+      return res.status(404).json({ error: "Carrito no encontrado" });
+    }
 
     const producto = carrito.productos.find(
       (p) => p.producto.toString() === pid
@@ -236,6 +269,10 @@ app.put("/api/carts/:cid", async (req, res) => {
   try {
     const { cid } = req.params;
 
+    if (!req.body || !Array.isArray(req.body)) {
+      return res.status(400).json({ error: "Formato inválido de carrito" });
+    }
+
     const carrito = await Carrito.findByIdAndUpdate(
       cid,
       { productos: req.body },
@@ -253,6 +290,10 @@ app.delete("/api/carts/:cid", async (req, res) => {
     const { cid } = req.params;
 
     const carrito = await Carrito.findById(cid);
+
+    if (!carrito) {
+      return res.status(404).json({ error: "Carrito no encontrado" });
+    }
 
     carrito.productos = [];
 
