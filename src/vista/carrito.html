@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>Carrito</h1>
+  <ul id="carrito"></ul>
+
+  <script>
+    const id = window.location.pathname.split('/').pop();
+
+    fetch(`/api/carts/${id}`)
+      .then(res => res.json())
+      .then(c => {
+        const lista = document.getElementById('carrito');
+
+        c.productos.forEach(p => {
+          const li = document.createElement('li');
+          li.innerText = `${p.producto.titulo} x ${p.cantidad}`;
+          lista.appendChild(li);
+        });
+      });
+  </script>
+</body>
+</html>

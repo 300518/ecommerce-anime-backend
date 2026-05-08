@@ -3,6 +3,8 @@ import dotenv from "dotenv";
 import { conectarDB } from "./config/db.js";
 import { Producto } from "./modelos/producto.modelo.js";
 import { Carrito } from "./modelos/carrito.modelo.js";
+import { ProductoDAO } from "./dao/producto.dao.js";
+import { CarritoDAO } from "./dao/carrito.dao.js";
 import http from "http";
 import { Server } from "socket.io";
 import path from "path";
@@ -16,6 +18,8 @@ const servidorHttp = http.createServer(app);
 const io = new Server(servidorHttp);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const productoDAO = new ProductoDAO();
+const carritoDAO = new CarritoDAO();
 
 app.use(express.json());
 
@@ -41,7 +45,8 @@ app.get("/api/products", async (req, res) => {
       sort: sort ? { precio: sort === "asc" ? 1 : -1 } : {},
     };
 
-    const resultado = await Producto.paginate(filtro, opciones);
+    //const resultado = await Producto.paginate(filtro, opciones);
+    const resultado = await productoDAO.obtenerProductos(filtro, opciones);
 
     res.json({
       status: "success",
@@ -94,7 +99,8 @@ app.post("/api/products", async (req, res) => {
       return res.status(400).json({ error: "Faltan campos obligatorios" });
     }
 
-    const nuevoProducto = await Producto.create(req.body);
+    //const nuevoProducto = await Producto.create(req.body);
+    const nuevoProducto = await productoDAO.crear(req.body);
 
     // 🔥 emitir actualización
     const productosActualizados = await Producto.find();
@@ -149,7 +155,8 @@ app.delete("/api/products/:pid", async (req, res) => {
 //Se agrega crear carro
 app.post("/api/carts", async (req, res) => {
   try {
-    const nuevoCarrito = await Carrito.create({ productos: [] });
+    //const nuevoCarrito = await Carrito.create({ productos: [] });
+    const nuevoCarrito = await carritoDAO.crear();
     res.json(nuevoCarrito);
   } catch (error) {
     res.status(500).json({ error: "Error al crear carrito" });
@@ -164,8 +171,8 @@ app.get("/api/carts/:cid", async (req, res) => {
       return res.status(400).json({ error: "ID carrito inválido" });
     }
 
-    const carrito = await Carrito.findById(cid).populate("productos.producto");
-
+    //const carrito = await Carrito.findById(cid).populate("productos.producto");
+    const carrito = await carritoDAO.obtenerPorId(cid);
     if (!carrito) {
       return res.status(404).json({ error: "Carrito no encontrado" });
     }
@@ -201,7 +208,8 @@ app.post("/api/carts/:cid/products/:pid", async (req, res) => {
       carrito.productos.push({ producto: pid, cantidad: 1 });
     }
 
-    await carrito.save();
+    //await carrito.save();
+    await carritoDAO.guardar(carrito);
 
     res.json(carrito);
   } catch (error) {
@@ -315,6 +323,18 @@ io.on("connection", async (socket) => {
   // enviar productos actuales al conectar
   const productos = await Producto.find();
   socket.emit("productos", productos);
+});
+
+app.get("/products", (req, res) => {
+  res.sendFile(path.join(__dirname, "vista/productos.html"));
+});
+
+app.get("/products/:pid", (req, res) => {
+  res.sendFile(path.join(__dirname, "vista/producto-detalle.html"));
+});
+
+app.get("/carts/:cid", (req, res) => {
+  res.sendFile(path.join(__dirname, "vista/carrito.html"));
 });
 
 app.use(express.static(path.join(__dirname, "vista")));

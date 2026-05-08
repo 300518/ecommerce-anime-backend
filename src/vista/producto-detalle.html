@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+  <h1>Detalle producto</h1>
+  <div id="detalle"></div>
+
+  <script>
+    const id = window.location.pathname.split('/').pop();
+
+    fetch(`/api/products/${id}`)
+      .then(res => res.json())
+      .then(p => {
+        document.getElementById('detalle').innerHTML = `
+          <h2>${p.titulo}</h2>
+          <p>${p.descripcion}</p>
+          <p>$${p.precio}</p>
+        `;
+      });
+  </script>
+</body>
+</html>
