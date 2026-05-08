@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Productos en tiempo real</title>
+  </head>
+  <body>
+    <h1>Figuras Anime</h1>
+    <ul id="lista"></ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io();
+
+      socket.on("productos", (data) => {
+        const lista = document.getElementById("lista");
+        lista.innerHTML = "";
+
+        data.forEach((p) => {
+          const li = document.createElement("li");
+          li.innerText = `${p.titulo} - $${p.precio}`;
+          lista.appendChild(li);
+        });
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+# Dependencias
+node_modules/
+
+# Variables de entorno (credenciales)
+.env
+
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Archivos del sistema
+.DS_Store
+
+# Coverage / test
+coverage/
+
+# VS Code
+.vscode/
