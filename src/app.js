@@ -1,5 +1,5 @@
-import express from "express";
 import dotenv from "dotenv";
+import express from "express";
 import { conectarDB } from "./config/db.js";
 import { Producto } from "./modelos/producto.modelo.js";
 import { Carrito } from "./modelos/carrito.modelo.js";
@@ -9,6 +9,8 @@ import http from "http";
 import { Server } from "socket.io";
 import path from "path";
 import { fileURLToPath } from "url";
+import routerProductos from "./routes/producto.routes.js";
+import routerCarts from "./routes/carrito.routes.js";
 
 dotenv.config();
 conectarDB();
@@ -28,7 +30,7 @@ app.get("/", (req, res) => {
 });
 
 // Se agrega el Get para obtener producto segun filtro
-app.get("/api/products", async (req, res) => {
+/*app.get("/api/products", async (req, res) => {
   try {
     const { limit = 10, page = 1, query, sort } = req.query;
 
@@ -68,7 +70,8 @@ app.get("/api/products", async (req, res) => {
     res.status(500).json({ error: "Error al obtener productos" });
   }
 });
-
+*/
+/*
 // se agrega get por producto
 app.get("/api/products/:pid", async (req, res) => {
   try {
@@ -312,6 +315,10 @@ app.delete("/api/carts/:cid", async (req, res) => {
     res.status(500).json({ error: "Error al vaciar carrito" });
   }
 });
+*/
+
+app.use("/api/products", routerProductos);
+app.use("/api/carts", routerCarts);
 
 servidorHttp.listen(8080, () => {
   console.log("Servidor corriendo en puerto 8080");
