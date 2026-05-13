@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { Producto } from "../modelos/producto.modelo.js";
+import { getSocket } from "../socket.js";
 
 const router = Router();
 
@@ -65,6 +66,11 @@ router.post("/", async (req, res) => {
     }
 
     const nuevoProducto = await Producto.create(req.body);
+    const io = getSocket();
+
+    const productosActualizados = await Producto.find();
+
+    io.emit("productos", productosActualizados);
 
     res.json(nuevoProducto);
   } catch (error) {
