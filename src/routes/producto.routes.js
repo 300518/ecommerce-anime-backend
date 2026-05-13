@@ -37,7 +37,6 @@ router.get("/", async (req, res) => {
         ? `/api/products?page=${resultado.nextPage}`
         : null,
     });
-
   } catch (error) {
     res.status(500).json({ error: "Error al obtener productos" });
   }
@@ -56,19 +55,52 @@ router.get("/:pid", async (req, res) => {
 
 // POST
 router.post("/", async (req, res) => {
-  const nuevoProducto = await Producto.create(req.body);
-  res.json(nuevoProducto);
+  try {
+    const { titulo, precio, stock } = req.body;
+
+    if (!titulo || !precio || stock === undefined) {
+      return res.status(400).json({
+        error: "Faltan campos obligatorios",
+      });
+    }
+
+    const nuevoProducto = await Producto.create(req.body);
+
+    res.json(nuevoProducto);
+  } catch (error) {
+    res.status(500).json({
+      error: "Error al crear producto",
+    });
+  }
 });
 
 // PUT
 router.put("/:pid", async (req, res) => {
-  const producto = await Producto.findByIdAndUpdate(
-    req.params.pid,
-    req.body,
-    { new: true }
-  );
+  try {
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({
+        error: "No hay datos para actualizar",
+      });
+    }
 
-  res.json(producto);
+    const producto = await Producto.findByIdAndUpdate(
+      req.params.pid,
+      req.body,
+      { new: true }
+    );
+
+    if (!producto) {
+      return res.status(404).json({
+        error: "Producto no encontrado",
+      });
+    }
+
+    res.json(producto);
+  } catch (error) {
+    res.status(500).json({
+      error: "Error al actualizar producto",
+    });
+  }
 });
 
 // DELETE
