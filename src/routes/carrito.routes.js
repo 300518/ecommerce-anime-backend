@@ -58,7 +58,7 @@ router.delete("/:cid/products/:pid", async (req, res) => {
   }
 });
 
-// Actualizar carrito completo
+// Se actualiza carrito completo
 router.put("/:cid", async (req, res) => {
   try {
     const carrito = await Carrito.findByIdAndUpdate(
@@ -75,27 +75,24 @@ router.put("/:cid", async (req, res) => {
   }
 });
 
-// Actualizar cantidad producto
+// Se actualiza cantidad producto
 router.put("/:cid/products/:pid", async (req, res) => {
   try {
     const { cantidad } = req.body;
 
     if (!cantidad || cantidad < 1) {
-
       return res.status(400).json({
-        error: "Cantidad inválida"
+        error: "Cantidad inválida",
       });
-    
     }
 
     const carrito = await Carrito.findById(req.params.cid);
     if (!carrito) {
-
       return res.status(404).json({
-        error: "Carrito no encontrado"
+        error: "Carrito no encontrado",
       });
-    
-    }ƒƒ
+    }
+    ƒƒ;
 
     const producto = carrito.productos.find(
       (p) => p.producto.toString() === req.params.pid
