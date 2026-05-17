@@ -1,24 +1,44 @@
 <!DOCTYPE html>
 <html>
+
+<head>
+  <title>Productos Anime</title>
+</head>
+
 <body>
-  <h1>Productos</h1>
+
+  <h1>Figuras Anime 🔥</h1>
+
   <ul id="lista"></ul>
 
-  <script>
-    fetch('/api/products')
-      .then(res => res.json())
-      .then(data => {
-        const lista = document.getElementById('lista');
+  <script src="/socket.io/socket.io.js"></script>
 
-        data.payload.forEach(p => {
-          const li = document.createElement('li');
-          li.innerHTML = `
-            ${p.titulo} - $${p.precio}
-            <a href="/products/${p._id}">Ver</a>
-          `;
-          lista.appendChild(li);
-        });
+  <script>
+
+    const socket = io();
+
+    socket.on("productos", (data) => {
+
+      const lista = document.getElementById("lista");
+
+      lista.innerHTML = "";
+
+      data.forEach((p) => {
+
+        const li = document.createElement("li");
+
+        li.innerHTML = `
+          ${p.titulo} - $${p.precio}
+          <a href="/products/${p._id}">Ver</a>
+        `;
+
+        lista.appendChild(li);
+
       });
+
+    });
+
   </script>
+
 </body>
 </html>
